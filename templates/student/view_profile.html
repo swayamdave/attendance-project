@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+    <div class="card">
+        <h2>Profile Details</h2>
+        <p><strong>Roll No:</strong> {{ student.roll_no }}</p>
+        <p><strong>Name:</strong> {{ student.name }}</p>
+        <p><strong>Course:</strong> {{ student.course }}</p>
+        <p><strong>Semester:</strong> {{ student.semester }}</p>
+        
+        <h3>Request Changes</h3>
+        <form method="POST" action="{{ url_for('request_changes') }}">
+            <div class="form-group">
+                <label for="new_name">New Name:</label>
+                <input type="text" id="new_name" name="new_name">
+            </div>
+            <div class="form-group">
+                <label for="new_course">New Course:</label>
+                <input type="text" id="new_course" name="new_course">
+            </div>
+            <div class="form-group">
+                <label for="new_semester">New Semester:</label>
+                <input type="number" id="new_semester" name="new_semester" min="1" max="8">
+            </div>
+            <button type="submit" class="btn btn-primary">Request Changes</button>
+        </form>
+    </div>
+</div>
+{% endblock %} 

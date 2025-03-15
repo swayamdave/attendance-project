@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+    {% for notice in notices %}
+    <div class="card notice-card">
+        <h3>{{ notice.title }}</h3>
+        <div class="notice-meta">
+            Posted on: {{ notice.date_posted.strftime('%d-%m-%Y %H:%M') }}
+        </div>
+        <div class="notice-content">
+            {{ notice.content | safe }}
+        </div>
+    </div>
+    {% else %}
+    <div class="card">
+        <p>No notices available.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %} 

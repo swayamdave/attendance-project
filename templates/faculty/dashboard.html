@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="dashboard">
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="dashboard-stats">
+        <div class="stat-card">
+            <h3>Take Attendance</h3>
+            <p>Start attendance session</p>
+            <a href="{{ url_for('take_attendance') }}" class="btn btn-primary">Take Attendance</a>
+        </div>
+        
+        <div class="stat-card">
+            <h3>Add Marks</h3>
+            <p>Enter student marks</p>
+            <a href="{{ url_for('add_marks') }}" class="btn btn-secondary">Add Marks</a>
+        </div>
+
+        <div class="stat-card">
+            <h3>Post Notice</h3>
+            <p>Send notice to students</p>
+            <a href="{{ url_for('post_notice') }}" class="btn btn-primary">Post Notice</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Quick Actions</h2>
+        <a href="{{ url_for('end_attendance') }}" class="btn btn-danger">End Attendance</a>
+        <a href="{{ url_for('logout') }}" class="btn btn-secondary">Logout</a>
+    </div>
+</div>
+{% endblock %}

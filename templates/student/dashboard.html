@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="dashboard">
+    <div class="card">
+        <h2>Welcome, {{ student.name }}</h2>
+        <p>Roll No: {{ student.roll_no }}</p>
+        <p>Course: {{ student.course }}</p>
+        <p>Semester: {{ student.semester }}</p>
+    </div>
+
+    <div class="dashboard-stats">
+        <div class="stat-card">
+            <h3>My Marks</h3>
+            <p>View your academic performance</p>
+            <a href="{{ url_for('view_marks') }}" class="btn btn-primary">View Marks</a>
+        </div>
+        
+        <div class="stat-card">
+            <h3>Notices</h3>
+            <p>Check important announcements</p>
+            <a href="{{ url_for('view_notices') }}" class="btn btn-secondary">View Notices</a>
+        </div>
+        
+        <div class="stat-card">
+            <h3>Attendance</h3>
+            <p>Check your attendance records</p>
+            <a href="{{ url_for('view_attendance') }}" class="btn btn-primary">View Attendance</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

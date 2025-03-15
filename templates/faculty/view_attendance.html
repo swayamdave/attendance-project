@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="attendance-view">
+    <h1>View Attendance</h1>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    
+    {% if attendance_data %}
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Time</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in attendance_data %}
+            <tr>
+                <td>{{ record.Name }}</td>
+                <td>{{ record.Time }}</td>
+                <td>{{ record.Date }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No attendance records available.</p>
+    {% endif %}
+    
+    <a href="{{ url_for('faculty_dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+</div>
+{% endblock %} 

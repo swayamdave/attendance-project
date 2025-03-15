@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+    <div class="card">
+        <h2>My Academic Performance</h2>
+        {% if marks %}
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Subject</th>
+                            <th>Marks</th>
+                            <th>Max Marks</th>
+                            <th>Percentage</th>
+                            <th>Exam Type</th>
+                            <th>Remarks</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for mark in marks %}
+                        <tr>
+                            <td>{{ mark.subject }}</td>
+                            <td>{{ mark.marks }}</td>
+                            <td>{{ mark.max_marks }}</td>
+                            <td>{{ (mark.marks / mark.max_marks * 100) | round(2) }}%</td>
+                            <td>{{ mark.exam_type }}</td>
+                            <td>{{ mark.remarks or 'No remarks' }}</td>
+                            <td>{{ mark.date_added.strftime('%d-%m-%Y') }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p>No marks available yet.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 

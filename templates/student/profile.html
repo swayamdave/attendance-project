@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Student Profile</h2>
+    
+    <form method="POST">
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Name</label>
+                            <input type="text" class="form-control" value="{{ student.name }}" readonly>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Roll Number</label>
+                            <input type="text" class="form-control" value="{{ student.roll_no }}" readonly>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Course</label>
+                            <input type="text" class="form-control" value="{{ student.course }}" readonly>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Semester</label>
+                            <input type="text" class="form-control" value="{{ student.semester }}" readonly>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Institute Email</label>
+                            <input type="email" name="institute_email" class="form-control" 
+                                value="{{ student.institute_email or '' }}">
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Personal Email</label>
+                            <input type="email" name="personal_email" class="form-control" 
+                                value="{{ student.personal_email or '' }}">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Phone Number</label>
+                            <input type="tel" name="phone" class="form-control" 
+                                value="{{ student.phone or '' }}">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Parent's Phone Number</label>
+                            <input type="tel" name="parent_phone" class="form-control" 
+                                value="{{ student.parent_phone or '' }}">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Date of Birth</label>
+                            <input type="date" name="date_of_birth" class="form-control" 
+                                value="{{ student.date_of_birth.strftime('%Y-%m-%d') if student.date_of_birth else '' }}">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Blood Group</label>
+                            <input type="text" name="blood_group" class="form-control" 
+                                value="{{ student.blood_group or '' }}">
+                        </div>
+                    </div>
+                    
+                    <div class="col-12">
+                        <div class="mb-3">
+                            <label class="form-label">Home Address</label>
+                            <textarea name="home_address" class="form-control" 
+                                rows="3">{{ student.home_address or '' }}</textarea>
+                        </div>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Update Profile</button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %} 

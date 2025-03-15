@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+    <div class="card">
+        <h2>Change Requests</h2>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>New Name</th>
+                        <th>New Course</th>
+                        <th>New Semester</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for request in change_requests %}
+                    <tr>
+                        <td>{{ request.student.name }}</td>
+                        <td>{{ request.new_name }}</td>
+                        <td>{{ request.new_course }}</td>
+                        <td>{{ request.new_semester }}</td>
+                        <td>
+                            <a href="{{ url_for('approve_change_request', request_id=request.id) }}" class="btn btn-success">Approve</a>
+                            <a href="{{ url_for('reject_change_request', request_id=request.id) }}" class="btn btn-danger">Reject</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %} 
