@@ -16,7 +16,6 @@ for cu_img in mylist:
     PersonName.append(os.path.splitext(cu_img)[0])
 print(PersonName)
 
-
 def encodings(images):
     encodelist = []
     for img in images:
@@ -25,10 +24,8 @@ def encodings(images):
         encodelist.append(encode)
     return encodelist
 
-
 encode_list_Known = encodings(Images)
 print("ALL ENCODING FOUND!!!")
-
 
 def attendance(name):
     with open('Attendence.csv', 'r+') as f:
@@ -42,7 +39,6 @@ def attendance(name):
             tStr = time_now.strftime('%H:%M:%S')
             dStr = time_now.strftime('%d/%m/%Y')
             f.writelines(f'\n{name},{tStr},{dStr}')
-
 
 cap = cv2.VideoCapture(0)
 
@@ -63,7 +59,6 @@ while True:
         if matches[matchIndex]:
             name = PersonName[matchIndex].upper()
             y1, x2, y2, x1 = faceLoc
-            #y1, x2, y2, x1 = y1 * 4, x2 * 4, y2 * 4, x1 * 4
             cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 0, 0), 2)
             cv2.rectangle(frame, (x1, y2 - 35), (x2, y2), (0, 255, 0), cv2.FILLED)
             cv2.putText(frame, name, (x1 + 6, y2 - 6), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 255, 255), 2)

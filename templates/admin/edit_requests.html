@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h3>Pending Profile Edit Requests</h3>
+        </div>
+        <div class="card-body">
+            {% if requests %}
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Request Type</th>
+                            <th>User</th>
+                            <th>Requested Changes</th>
+                            <th>Request Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for request in requests %}
+                        <tr>
+                            <td>{{ request.request_type.title() }}</td>
+                            <td>
+                                {% if request.request_type == 'student' %}
+                                    {% set student = students|selectattr('user_id', 'equalto', request.user_id)|first %}
+                                    {{ student.name if student else 'Unknown' }}
+                                {% else %}
+                                    {% set faculty = faculties|selectattr('id', 'equalto', request.user_id)|first %}
+                                    {{ faculty.username if faculty else 'Unknown' }}
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% set changes = request.requested_changes|eval %}
+                                <ul class="list-unstyled">
+                                    {% for key, value in changes.items() %}
+                                    <li><strong>{{ key|title }}:</strong> {{ value }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </td>
+                            <td>{{ request.request_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>
+                                <a href="{{ url_for('handle_edit_request', request_id=request.id, action='approved') }}" 
+                                   class="btn btn-success btn-sm">Approve</a>
+                                <a href="{{ url_for('handle_edit_request', request_id=request.id, action='rejected') }}" 
+                                   class="btn btn-danger btn-sm">Reject</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                No pending edit requests.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Details</title>
+</head>
+<body>
+    <h1>Student Details</h1>
+    <p>Name: {{ student.name }}</p>
+    <p>Roll No: {{ student.roll_no }}</p>
+    <p>Course: {{ student.course }}</p>
+    <p>Semester: {{ student.semester }}</p>
+    <form action="{{ url_for('request_edit_details', student_id=student.id) }}" method="POST">
+        <h2>Request Edit</h2>
+        <label for="name">New Name:</label>
+        <input type="text" name="name" id="name">
+        <label for="course">New Course:</label>
+        <input type="text" name="course" id="course">
+        <label for="semester">New Semester:</label>
+        <input type="number" name="semester" id="semester">
+        <button type="submit">Request Edit</button>
+    </form>
+</body>
+</html> 

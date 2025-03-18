@@ -23,10 +23,14 @@ class User(db.Model):
 class Student(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    roll_no = db.Column(db.String(20), unique=True, nullable=False)
+    enrollment_number = db.Column(db.String(20), unique=True, nullable=False)
     name = db.Column(db.String(100), nullable=False)
+    phone_number = db.Column(db.String(15))
+    institute_email = db.Column(db.String(120), unique=True)
     course = db.Column(db.String(50))
     semester = db.Column(db.Integer)
+    department = db.Column(db.String(50))
+    address = db.Column(db.Text)
     marks = db.relationship('Marks', backref='student', lazy=True)
 
 class Marks(db.Model):
@@ -45,6 +49,17 @@ class Notice(db.Model):
     content = db.Column(db.Text, nullable=False)
     date_posted = db.Column(db.DateTime, default=datetime.utcnow)
     posted_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
+# Add new model for profile edit requests
+class ProfileEditRequest(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    request_type = db.Column(db.String(20), nullable=False)  # 'student' or 'faculty'
+    requested_changes = db.Column(db.Text, nullable=False)
+    status = db.Column(db.String(20), default='pending')  # pending, approved, rejected
+    request_date = db.Column(db.DateTime, default=datetime.utcnow)
+    response_date = db.Column(db.DateTime)
+    response_message = db.Column(db.Text)
 
 @app.route('/')
 def index():
@@ -183,8 +198,13 @@ def admin_dashboard():
 def manage_users():
     if session.get('role') != 'admin':
         return redirect(url_for('login'))
-    students = Student.query.all()
+    
+    # Get all students with their user information
+    students = db.session.query(Student, User).join(User).all()
+    
+    # Get all faculty users
     faculty = User.query.filter_by(role='faculty').all()
+    
     return render_template('admin/manage_users.html', students=students, faculty=faculty)
 
 @app.route('/admin/add_user', methods=['GET', 'POST'])
@@ -197,9 +217,10 @@ def add_user():
         username = request.form.get('username')
         password = request.form.get('password')
         email = request.form.get('email')
-        
+
         user = User(username=username, password=password, role=role, email=email)
         db.session.add(user)
+        db.session.commit()  # Ensure User ID is created before Student entry
         
         if role == 'student':
             student = Student(
@@ -207,15 +228,31 @@ def add_user():
                 roll_no=request.form.get('roll_no'),
                 name=request.form.get('name'),
                 course=request.form.get('course'),
-                semester=request.form.get('semester')
+                semester=int(request.form.get('semester'))
             )
             db.session.add(student)
-            
-        db.session.commit()
+            db.session.commit()
+
         flash('User added successfully!')
         return redirect(url_for('manage_users'))
         
     return render_template('admin/add_user.html')
+
+@app.route('/admin/delete_user/<int:user_id>')
+def delete_user(user_id):
+    if session.get('role') != 'admin':
+        return redirect(url_for('login'))
+    
+    user = User.query.get_or_404(user_id)
+    if user.role == 'student':
+        student = Student.query.filter_by(user_id=user_id).first()
+        if student:
+            db.session.delete(student)
+    
+    db.session.delete(user)
+    db.session.commit()
+    flash('User deleted successfully!')
+    return redirect(url_for('manage_users'))
 
 # Student routes
 @app.route('/student/dashboard')
@@ -224,6 +261,40 @@ def student_dashboard():
         return redirect(url_for('login'))
     student = Student.query.filter_by(user_id=session['user_id']).first()
     return render_template('student/dashboard.html', student=student)
+
+@app.route('/student/profile')
+def student_profile():
+    if session.get('role') != 'student':
+        return redirect(url_for('login'))
+    student = Student.query.filter_by(user_id=session['user_id']).first()
+    return render_template('student/profile.html', student=student)
+
+@app.route('/student/edit_profile_request', methods=['GET', 'POST'])
+def student_edit_profile_request():
+    if session.get('role') != 'student':
+        return redirect(url_for('login'))
+    
+    if request.method == 'POST':
+        changes = {
+            'name': request.form.get('name'),
+            'phone_number': request.form.get('phone_number'),
+            'address': request.form.get('address'),
+            'semester': request.form.get('semester'),
+            'department': request.form.get('department')
+        }
+        
+        edit_request = ProfileEditRequest(
+            user_id=session['user_id'],
+            request_type='student',
+            requested_changes=str(changes)
+        )
+        db.session.add(edit_request)
+        db.session.commit()
+        flash('Profile edit request submitted successfully!')
+        return redirect(url_for('student_profile'))
+    
+    student = Student.query.filter_by(user_id=session['user_id']).first()
+    return render_template('student/edit_profile_request.html', student=student)
 
 @app.route('/student/marks')
 def view_marks():
@@ -291,6 +362,125 @@ def add_marks():
             
     students = Student.query.all()
     return render_template('faculty/add_marks.html', students=students)
+
+# Faculty profile edit request route
+@app.route('/faculty/edit_profile_request', methods=['GET', 'POST'])
+def faculty_edit_profile_request():
+    if session.get('role') != 'faculty':
+        return redirect(url_for('login'))
+    
+    if request.method == 'POST':
+        changes = {
+            'name': request.form.get('name'),
+            'phone_number': request.form.get('phone_number'),
+            'email': request.form.get('email'),
+            'department': request.form.get('department')
+        }
+        
+        edit_request = ProfileEditRequest(
+            user_id=session['user_id'],
+            request_type='faculty',
+            requested_changes=str(changes)
+        )
+        db.session.add(edit_request)
+        db.session.commit()
+        flash('Profile edit request submitted successfully!')
+        return redirect(url_for('faculty_dashboard'))
+    
+    faculty = User.query.get(session['user_id'])
+    return render_template('faculty/edit_profile_request.html', faculty=faculty)
+
+# Admin routes for managing edit requests
+@app.route('/admin/edit_requests')
+def admin_edit_requests():
+    if session.get('role') != 'admin':
+        return redirect(url_for('login'))
+    
+    pending_requests = ProfileEditRequest.query.filter_by(status='pending').all()
+    return render_template('admin/edit_requests.html', requests=pending_requests)
+
+@app.route('/admin/handle_edit_request/<int:request_id>/<action>')
+def handle_edit_request(request_id, action):
+    if session.get('role') != 'admin':
+        return redirect(url_for('login'))
+    
+    edit_request = ProfileEditRequest.query.get_or_404(request_id)
+    edit_request.status = action
+    edit_request.response_date = datetime.utcnow()
+    
+    if action == 'approved':
+        changes = eval(edit_request.requested_changes)
+        if edit_request.request_type == 'student':
+            student = Student.query.filter_by(user_id=edit_request.user_id).first()
+            for key, value in changes.items():
+                if value and hasattr(student, key):
+                    setattr(student, key, value)
+        else:  # faculty
+            faculty = User.query.get(edit_request.user_id)
+            for key, value in changes.items():
+                if value and hasattr(faculty, key):
+                    setattr(faculty, key, value)
+    
+    db.session.commit()
+    flash(f'Edit request {action}!')
+    return redirect(url_for('admin_edit_requests'))
+
+# Add sample student data route
+@app.route('/admin/add_sample_students')
+def add_sample_students():
+    if session.get('role') != 'admin':
+        return redirect(url_for('login'))
+    
+    sample_students = [
+        {
+            'username': 'student1',
+            'password': 'pass123',
+            'email': 'student1@institute.edu',
+            'enrollment_number': 'EN2024001',
+            'name': 'John Doe',
+            'phone_number': '1234567890',
+            'course': 'B.Tech',
+            'semester': 4,
+            'department': 'Computer Engineering'
+        },
+        {
+            'username': 'student2',
+            'password': 'pass123',
+            'email': 'student2@institute.edu',
+            'enrollment_number': 'EN2024002',
+            'name': 'Jane Smith',
+            'phone_number': '9876543210',
+            'course': 'B.Tech',
+            'semester': 4,
+            'department': 'Computer Engineering'
+        }
+    ]
+    
+    for student_data in sample_students:
+        user = User(
+            username=student_data['username'],
+            password=student_data['password'],
+            role='student',
+            email=student_data['email']
+        )
+        db.session.add(user)
+        db.session.commit()
+        
+        student = Student(
+            user_id=user.id,
+            enrollment_number=student_data['enrollment_number'],
+            name=student_data['name'],
+            phone_number=student_data['phone_number'],
+            institute_email=student_data['email'],
+            course=student_data['course'],
+            semester=student_data['semester'],
+            department=student_data['department']
+        )
+        db.session.add(student)
+    
+    db.session.commit()
+    flash('Sample student data added successfully!')
+    return redirect(url_for('admin_dashboard'))
 
 if __name__ == '__main__':
     with app.app_context():
